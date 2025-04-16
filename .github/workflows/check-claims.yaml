@@ -1,0 +1,44 @@
+name: Check Winner Claims
+
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # every 5 minutes
+  workflow_dispatch:       # allows manual run
+
+
+jobs:
+  run-claim-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+
+      - name: Install deps
+        run: npm install
+
+
+      - name: Run claim-check
+        run: node bots/check-claims.js
+        env:
+          SOLANA_PROGRAM_ID: ${{ secrets.SOLANA_PROGRAM_ID }}
+          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GOOGLE_SERVICE_JSON: ${{ secrets.GOOGLE_SERVICE_JSON }}
+
+
+
+
+
+
