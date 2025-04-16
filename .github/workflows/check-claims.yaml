@@ -26,7 +26,8 @@ jobs:
 
 
       - name: Run claim-check
-        run: node bots/check-claims.js
+        run: node check-claims.js
+        working-directory: bots
         env:
           SOLANA_PROGRAM_ID: ${{ secrets.SOLANA_PROGRAM_ID }}
           TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
