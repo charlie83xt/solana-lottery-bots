@@ -1,5 +1,5 @@
 require('dotenv').config();
-import logClaimToSheet from './claim-sheet';
+const logClaimToSheet = require('./claim-sheet');
 const { Connection, PublicKey } = require('@solana/web3.js');
 (async () => {
     const fetch = (await import('node-fetch')).default;
