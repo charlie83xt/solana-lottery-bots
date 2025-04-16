@@ -1,4 +1,5 @@
 require('dotenv').config();
+import logClaimToSheet from './claim-sheet';
 const { Connection, PublicKey } = require('@solana/web3.js');
 (async () => {
     const fetch = (await import('node-fetch')).default;
@@ -68,6 +69,14 @@ async function checkForWinnerClaims() {
           }
           await tweetWinnerClaim(payload);
           await sendTelegram(payload);
+          await logClaimToSheet({
+            ...payload,
+            role: [
+              parsed.isDev && 'Dev',
+              parsed.isWinner && 'Winner',
+              parsed.isParticipant && 'Participant'
+            ].filter(Boolean).join(', ')
+          });
         }
       }
     }
@@ -99,6 +108,7 @@ async function sendTelegram({ wallet, amount, lotteryId, tx }) {
         }),
     });
 }
+
 
 checkForWinnerClaims();
 
