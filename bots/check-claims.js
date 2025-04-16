@@ -108,7 +108,7 @@ async function sendTelegram({ wallet, amount, lotteryId, tx }) {
         }),
     });
 }
-
+console.log(PROGRAM_ID)
 
 checkForWinnerClaims();
 
