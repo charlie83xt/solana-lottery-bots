@@ -3,7 +3,7 @@ name: Check Winner Claims
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # every 60 minutes
+    - cron: '0 * * * *'  # every 60 minutes
   workflow_dispatch:       # allows manual run
 
 
