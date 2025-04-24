@@ -8,9 +8,9 @@ const { Connection, PublicKey } = require('@solana/web3.js');
 const fs = require('fs');
 const tweetWinnerClaim = require('./tweet-winner');
 
-console.log("VITE_PROGRAM_ID from environment:", process.env.VITE_PROGRAM_ID);
+// console.log("VITE_PROGRAM_ID from environment:", process.env.VITE_PROGRAM_ID);
 const PROGRAM_ID = new PublicKey(process.env.VITE_PROGRAM_ID);
-console.log("PROGRAM_ID after creation:", PROGRAM_ID);
+// console.log("PROGRAM_ID after creation:", PROGRAM_ID);
 const CONNECTION = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 // 🧠 We'll store already-processed txs to avoid repeats
@@ -110,7 +110,7 @@ async function sendTelegram({ wallet, amount, lotteryId, tx }) {
         }),
     });
 }
-console.log(PROGRAM_ID)
+// console.log(PROGRAM_ID)
 
 checkForWinnerClaims();
 
