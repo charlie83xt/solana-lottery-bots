@@ -92,7 +92,7 @@ async function checkForWinnerClaims() {
 
 function extractLotteryIdFromLogs(logs) {
   for (const log of logs) {
-    const match = log.match(/Lottery\s#?(\d+)/i);
+    const match = log.match(/Lottery:\s?(\d+)/i);
     if (match) return match[1];
   }
   return null;
