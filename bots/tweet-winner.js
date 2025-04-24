@@ -19,7 +19,7 @@ async function tweetWinnerClaim({ wallet, amount, lotteryId, tx }) {
   await twitterClient.v2.tweet(message);
   console.log("✅ Tweeted:", message);
 }
-// console.log(process.env.TWITTER_API_KEY);
+console.log("Twitter Key length:", process.env.TWITTER_API_KEY?.length);
 
 module.exports = tweetWinnerClaim;
 
