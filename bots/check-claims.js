@@ -7,6 +7,7 @@ const { Connection, PublicKey } = require('@solana/web3.js');
 
 const fs = require('fs');
 const tweetWinnerClaim = require('./tweet-winner');
+const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 // console.log("VITE_PROGRAM_ID from environment:", process.env.VITE_PROGRAM_ID);
 const PROGRAM_ID = new PublicKey(process.env.VITE_PROGRAM_ID);
@@ -14,19 +15,19 @@ const PROGRAM_ID = new PublicKey(process.env.VITE_PROGRAM_ID);
 const CONNECTION = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 // 🧠 We'll store already-processed txs to avoid repeats
-const CACHE_FILE = './claimed-cache.json';
+// const CACHE_FILE = './claimed-cache.json';
 
-function loadCache() {
-  try {
-    return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'));
-  } catch {
-    return { txs: [] };
-  }
-}
+// function loadCache() {
+//   try {
+//     return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'));
+//   } catch {
+//     return { txs: [] };
+//   }
+// }
 
-function saveCache(cache) {
-  fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
-}
+// function saveCache(cache) {
+//   fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
+// }
 
 function parseClaimLog(log) {
   const match = log.match(/CLAIM RECEIPT.+wallet:\s(.+?)\s\|\samount:\s(\d+)\s\|\sdev:\s(\w+)\s\|\swinner:\s(\w+)/);
@@ -41,8 +42,32 @@ function parseClaimLog(log) {
   };
 }
 
+async function loadProcessedTxs() {
+  const creds = JSON.parse(
+    Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
+  );
+
+  const doc = new GoogleSpreadsheet('1cANnNd5Mn0pelmdrOuR__EtYb1hV5mme4mrcQhTzD2Y');
+  await doc.useServiceAcountAuth(creds);
+  await doc.loadInfo();
+
+  const sheet = doc.sheetsByTitle['processedTx'];
+  const rows = await sheet.getRows();
+
+  return rows.map(row => row['TX Signature']);
+}
+
 async function checkForWinnerClaims() {
-  const cache = loadCache();
+  let processedTxs = [];
+
+  try {
+    processedTxs = await loadProcessedTxs();
+  } catch (e) {
+    console.warn(" Could not load from Google sheet. Falling back to local cache.");
+    processedTxs = loadCache().txs;
+  }
+
+  // const cache = loadCache();
 
   const signatures = await CONNECTION.getSignaturesForAddress(PROGRAM_ID, {
     limit: 20,
@@ -50,7 +75,7 @@ async function checkForWinnerClaims() {
 
   for (const sigInfo of signatures) {
     const txSig = sigInfo.signature;
-    if (cache.txs.includes(txSig)) continue;
+    if (processedTxs.includes(txSig)) continue;
 
     const tx = await CONNECTION.getTransaction(txSig, {
       commitment: 'confirmed',
@@ -83,10 +108,10 @@ async function checkForWinnerClaims() {
       }
     }
 
-    cache.txs.push(txSig); // mark this tx as processed
+    // cache.txs.push(txSig); // mark this tx as processed
   }
 
-  saveCache(cache);
+  // saveCache(cache);
   console.log("✅ Check complete.");
 }
 

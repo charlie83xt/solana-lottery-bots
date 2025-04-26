@@ -9,8 +9,10 @@ async function logClaimToSheet({ wallet, amount, lotteryId, tx, role }) {
     await doc.useServiceAccountAuth(creds);
     await doc.loadInfo();
   
-    const sheet = doc.sheetsByIndex[0];
-    await sheet.addRow({
+    const claimSheet = doc.sheetsByIndex[0]; // Winner claims sheet
+    const processedSheet = doc.sheetByTitle['processedTx']; // Processed transactions tab
+
+    await claimSheet.addRow({
       'Lottery #': lotteryId,
       'Wallet': wallet,
       'Amount (SOL)': (amount/1e9).toFixed(2),
@@ -18,9 +20,16 @@ async function logClaimToSheet({ wallet, amount, lotteryId, tx, role }) {
       'Time': new Date().toISOString(),
       'Role': role
     });
+
+    await processedSheet.addRow({
+      'TX Signature': tx,
+      'Lottery ID': lotteryId,
+      'Wallet': wallet,
+      'Amount (SOL)': (amount / 1e9).toFixed(2),
+      'Time': new Date().toISOString(),
+    });
   
-    console.log('✅ Logged claim to Google Sheet.')
-  
+    console.log('✅ Logged claim and processed tx to Google Sheet.')
   }
 
   module.exports = logClaimToSheet;
