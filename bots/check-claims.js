@@ -9,25 +9,26 @@ const fs = require('fs');
 const tweetWinnerClaim = require('./tweet-winner');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-// console.log("VITE_PROGRAM_ID from environment:", process.env.VITE_PROGRAM_ID);
+const SPREADSHEET_ID = '1cANnNd5Mn0pelmdrOuR__EtYb1hV5mme4mrcQhTzD2Y';
+const SHEET_NAME = 'ProcessedTx';
 const PROGRAM_ID = new PublicKey(process.env.VITE_PROGRAM_ID);
-// console.log("PROGRAM_ID after creation:", PROGRAM_ID);
 const CONNECTION = new Connection('https://api.devnet.solana.com', 'confirmed');
 
-// 🧠 We'll store already-processed txs to avoid repeats
-// const CACHE_FILE = './claimed-cache.json';
+async function loadProcessedTxs() {
+  const creds = JSON.parse(
+    Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
+  );
 
-// function loadCache() {
-//   try {
-//     return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'));
-//   } catch {
-//     return { txs: [] };
-//   }
-// }
+  const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
+  await doc.useServiceAcountAuth(creds);
+  await doc.loadInfo();
 
-// function saveCache(cache) {
-//   fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
-// }
+  const sheet = doc.sheetsByTitle[SHEET_NAME];
+  if (!sheet) throw new Error(`Sheet "${SHEET_NAME}" not found`);
+
+  const rows = await sheet.getRows();
+  return rows.map(row => row['TX Signature']);
+}
 
 function parseClaimLog(log) {
   const match = log.match(/CLAIM RECEIPT.+wallet:\s(.+?)\s\|\samount:\s(\d+)\s\|\sdev:\s(\w+)\s\|\swinner:\s(\w+)/);
@@ -42,20 +43,6 @@ function parseClaimLog(log) {
   };
 }
 
-async function loadProcessedTxs() {
-  const creds = JSON.parse(
-    Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
-  );
-
-  const doc = new GoogleSpreadsheet('1cANnNd5Mn0pelmdrOuR__EtYb1hV5mme4mrcQhTzD2Y');
-  await doc.useServiceAcountAuth(creds);
-  await doc.loadInfo();
-
-  const sheet = doc.sheetsByTitle['processedTx'];
-  const rows = await sheet.getRows();
-
-  return rows.map(row => row['TX Signature']);
-}
 
 async function checkForWinnerClaims() {
   let processedTxs = [];
@@ -107,8 +94,6 @@ async function checkForWinnerClaims() {
         }
       }
     }
-
-    // cache.txs.push(txSig); // mark this tx as processed
   }
 
   // saveCache(cache);
