@@ -64,7 +64,7 @@ async function checkForWinnerClaims() {
     processedTxs = await loadProcessedTxs();
   } catch (e) {
     console.warn(" Could not load from Google sheet. Falling back to local cache.");
-    processedTxs = loadCache().txs;
+    processedTxs = [];
   }
 
   // const cache = loadCache();
