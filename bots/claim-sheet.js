@@ -13,8 +13,8 @@ async function logClaimToSheet({ wallet, amount, lotteryId, tx, role }) {
     await doc.useServiceAccountAuth(creds);
     await doc.loadInfo();
   
-    const claimSheet = doc.sheetByTitle[CLAIM_SHEET_NAME]; // Winner claims sheet
-    const processedSheet = doc.sheetByTitle[PROCESS_SHEET_NAME]; // Processed transactions tab
+    const claimSheet = doc.sheetsByTitle[CLAIM_SHEET_NAME]; // Winner claims sheet
+    const processedSheet = doc.sheetsByTitle[PROCESS_SHEET_NAME]; // Processed transactions tab
 
     await claimSheet.addRow({
       'Lottery #': lotteryId,
