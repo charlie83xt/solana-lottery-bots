@@ -7,7 +7,10 @@ const CLAIM_SHEET_NAME = 'Sheet1';
 
 async function logClaimToSheet({ wallet, amount, lotteryId, tx, role }) {
     const creds = JSON.parse(
-      Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
+      // uncomment line below only For local testing
+      // Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
+      // push the one below uncommented
+      Buffer.from(GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
     );
     const doc = new GoogleSpreadsheet(SPREADSHEET_ID)
     await doc.useServiceAccountAuth(creds);
