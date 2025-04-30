@@ -11,16 +11,12 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 const SPREADSHEET_ID = '1cANnNd5Mn0pelmdrOuR__EtYb1hV5mme4mrcQhTzD2Y';
 const SHEET_NAME = 'ProcessedTx';
-// Line below for local use
-// const PROGRAM_ID = new PublicKey(process.env.VITE_PROGRAM_ID);
-const PROGRAM_ID = new PublicKey(VITE_PROGRAM_ID);
+const PROGRAM_ID = new PublicKey(process.env.VITE_PROGRAM_ID);
 const CONNECTION = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 async function loadProcessedTxs() {
   const creds = JSON.parse(
-    // Line below for local use
-    // Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
-    Buffer.from(GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
+    Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
   );
 
   const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
