@@ -6,6 +6,7 @@ const PROCESS_SHEET_NAME = 'ProcessedTx';
 const CLAIM_SHEET_NAME = 'Sheet1';
 
 async function logClaimToSheet({ wallet, amount, lotteryId, tx, role }) {
+  try {
     const creds = JSON.parse(
       Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
     );
@@ -34,6 +35,11 @@ async function logClaimToSheet({ wallet, amount, lotteryId, tx, role }) {
     });
   
     console.log('✅ Logged claim and processed tx to Google Sheet.')
-  }
 
-  module.exports = logClaimToSheet;
+  } catch (error) {
+    console.error('❌ Error logging o Google Sheet:', error);
+  }
+    
+}
+
+module.exports = logClaimToSheet;
