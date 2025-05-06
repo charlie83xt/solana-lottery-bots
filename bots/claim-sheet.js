@@ -10,12 +10,17 @@ async function logClaimToSheet({ wallet, amount, lotteryId, tx, role }) {
     const creds = JSON.parse(
       Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
     );
-    const doc = new GoogleSpreadsheet(SPREADSHEET_ID)
-    console.log('Attemping Google Sheets authentication...');
-    await doc.useServiceAccountAuth(creds);
-    console.log('Google Sheets authentication successful.');
+    const serviceAccountAuth = new JWT({
+      email: creds.client_email,
+      key: creds.private_key,
+      scopes: [
+        'https://www.googleapis.com/auth/spreadsheets',
+      ],
+    });
+
+    const doc = new GoogleSpreadsheet(SPREADSHEET_ID, serviceAccountAuth);
     await doc.loadInfo();
-    console.log('Google Sheets info loaded.');
+    
   
     const claimSheet = doc.sheetsByTitle[CLAIM_SHEET_NAME]; // Winner claims sheet
     const processedSheet = doc.sheetsByTitle[PROCESS_SHEET_NAME]; // Processed transactions tab
