@@ -11,8 +11,11 @@ async function logClaimToSheet({ wallet, amount, lotteryId, tx, role }) {
       Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
     );
     const doc = new GoogleSpreadsheet(SPREADSHEET_ID)
+    console.log('Attemping Google Sheets authentication...');
     await doc.useServiceAccountAuth(creds);
+    console.log('Google Sheets authentication successful.');
     await doc.loadInfo();
+    console.log('Google Sheets info loaded.');
   
     const claimSheet = doc.sheetsByTitle[CLAIM_SHEET_NAME]; // Winner claims sheet
     const processedSheet = doc.sheetsByTitle[PROCESS_SHEET_NAME]; // Processed transactions tab
@@ -25,6 +28,7 @@ async function logClaimToSheet({ wallet, amount, lotteryId, tx, role }) {
       'Time': new Date().toISOString(),
       'Role': role
     });
+    console.log('Attempted to add row to claimSheet.');
 
     await processedSheet.addRow({
       'TX Signature': tx,
@@ -33,6 +37,8 @@ async function logClaimToSheet({ wallet, amount, lotteryId, tx, role }) {
       'Amount (SOL)': (amount / 1e9).toFixed(2),
       'Time': new Date().toISOString(),
     });
+
+    console.log('Attempted to add row to processedSheet.');
   
     console.log('✅ Logged claim and processed tx to Google Sheet.')
 
