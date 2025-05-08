@@ -1,5 +1,6 @@
 require('dotenv').config();
 const logClaimToSheet = require('./claim-sheet');
+const { JWT } = require('google-auth-library');
 const { Connection, PublicKey } = require('@solana/web3.js');
 (async () => {
     const fetch = (await import('node-fetch')).default;
@@ -15,19 +16,34 @@ const PROGRAM_ID = new PublicKey(process.env.VITE_PROGRAM_ID);
 const CONNECTION = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 async function loadProcessedTxs() {
-  const creds = JSON.parse(
-    Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
-  );
+  try {
 
-  const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
-  await doc.useServiceAcountAuth(creds);
-  await doc.loadInfo();
+  
+    const creds = JSON.parse(
+      Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
+    );
+    const serviceAccountAuth = new JWT({
+      email: creds.client_email,
+      key: creds.private_key,
+      scopes: [
+        'https://www.googleapis.com/auth/spreadsheets',
+      ],
+    });
 
-  const sheet = doc.sheetsByTitle[SHEET_NAME];
-  if (!sheet) throw new Error(`Sheet "${SHEET_NAME}" not found`);
+    const doc = new GoogleSpreadsheet(SPREADSHEET_ID, serviceAccountAuth);
+    // const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
+    // await doc.useServiceAcountAuth(creds);
+    await doc.loadInfo();
 
-  const rows = await sheet.getRows();
-  return rows.map(row => row['TX Signature']);
+    const sheet = doc.sheetsByTitle[SHEET_NAME];
+    if (!sheet) throw new Error(`Sheet "${SHEET_NAME}" not found`);
+
+    const rows = await sheet.getRows();
+    return rows.map(row => row['TX Signature']);
+  } catch (e) {
+    console.warn(" ⚠️ Could not load from Google sheet. Falling back to local cache.", e);
+    return [];
+  }
 }
 
 function parseClaimLog(log) {
