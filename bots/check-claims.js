@@ -17,7 +17,7 @@ const CONNECTION = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 async function loadProcessedTxs() {
   try {
-    console.log('DEBUG: Value of GOOGLE_SERVICE_JSON_B64:', process.env.GOOGLE_SERVICE_JSON_B64 ? 'DEFINED (length: ' + process.env.GOOGLE_SERVICE_JSON_B64.length + ')' : 'UNDEFINED');
+    
     const creds = JSON.parse(
       Buffer.from(process.env.GOOGLE_SERVICE_JSON_B64, 'base64').toString('utf8')
     );
