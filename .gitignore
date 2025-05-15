@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 .env
 service-account.json
+service-account(old).json
+temp-test.js 
