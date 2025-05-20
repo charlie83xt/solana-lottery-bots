@@ -9,6 +9,7 @@ const { Connection, PublicKey } = require('@solana/web3.js');
 const fs = require('fs');
 const tweetWinnerClaim = require('./tweet-winner');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require('constants');
 
 const SPREADSHEET_ID = '1cANnNd5Mn0pelmdrOuR__EtYb1hV5mme4mrcQhTzD2Y';
 const SHEET_NAME = 'ProcessedTx';
@@ -30,15 +31,21 @@ async function loadProcessedTxs() {
     });
 
     const doc = new GoogleSpreadsheet(SPREADSHEET_ID, serviceAccountAuth);
-    // const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
-    // await doc.useServiceAcountAuth(creds);
     await doc.loadInfo();
 
     const sheet = doc.sheetsByTitle[SHEET_NAME];
     if (!sheet) throw new Error(`Sheet "${SHEET_NAME}" not found`);
 
+    await sheet.loadHeaderRow();
+
     const rows = await sheet.getRows();
-    return rows.map(row => row['TX Signature']);
+
+    const loadedTxs = rows.map(row => {
+      const tx = String(row['TX Signature']);
+      return tx.trim();
+    })
+    return loadedTxs;
+    // return rows.map(row => String(row['TX Signature']).trim());
   } catch (e) {
     console.warn(" ⚠️ Could not load from Google sheet. Falling back to local cache.", e);
     return [];
@@ -77,8 +84,15 @@ async function checkForWinnerClaims() {
 
   for (const sigInfo of signatures) {
     const txSig = sigInfo.signature;
-    if (processedTxs.includes(txSig)) continue;
+    const trimmedTxSig = txSig.trim();
+    console.log(`DEBUG: Checking transaction signaure: '${trimmedTxSig}' (length: ${trimmedTxSig.length})`); //new 19/05
 
+
+    if (processedTxs.includes(trimmedTxSig)) {
+      console.log(`DEBUG: Transaction ${trimmedTxSig} already processed. Skipping.`);
+      continue;
+    }
+    
     const tx = await CONNECTION.getTransaction(txSig, {
       commitment: 'confirmed',
       maxSupportedTransactionVersion: 0,
