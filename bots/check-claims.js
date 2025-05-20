@@ -85,11 +85,11 @@ async function checkForWinnerClaims() {
   for (const sigInfo of signatures) {
     const txSig = sigInfo.signature;
     const trimmedTxSig = txSig.trim();
-    console.log(`DEBUG: Checking transaction signaure: '${trimmedTxSig}' (length: ${trimmedTxSig.length})`); //new 19/05
+    // console.log(`DEBUG: Checking transaction signaure: '${trimmedTxSig}' (length: ${trimmedTxSig.length})`); //new 19/05
 
 
     if (processedTxs.includes(trimmedTxSig)) {
-      console.log(`DEBUG: Transaction ${trimmedTxSig} already processed. Skipping.`);
+      // console.log(`DEBUG: Transaction ${trimmedTxSig} already processed. Skipping.`);
       continue;
     }
     
