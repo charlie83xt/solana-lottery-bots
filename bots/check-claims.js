@@ -15,7 +15,7 @@ const { getActiveResourcesInfo } = require('process');
 const SPREADSHEET_ID = '1cANnNd5Mn0pelmdrOuR__EtYb1hV5mme4mrcQhTzD2Y';
 const SHEET_NAME = 'ProcessedTx';
 const PROGRAM_ID = new PublicKey(process.env.VITE_PROGRAM_ID);
-const CONNECTION = new Connection('https://api.devnet.solana.com', 'confirmed');
+const CONNECTION = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
 
 async function loadProcessedTxs() {
   try {
